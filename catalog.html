@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Каталог — Wandoc</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ===== CATALOG SPECIFIC ===== */
+    .catalog-page { padding-top: 72px; min-height: 100vh; background: var(--milk); }
+
+    .catalog-hero {
+      background: var(--white); padding: 48px 0 40px;
+      border-bottom: 1px solid var(--beige);
+    }
+    .catalog-hero .container { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .catalog-hero-left h1 { font-size: 36px; font-weight: 800; letter-spacing: -1px; color: var(--graphite); margin-bottom: 6px; }
+    .catalog-hero-left p { font-size: 14px; color: var(--text-muted); }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .breadcrumb a { font-size: 13px; color: var(--text-muted); transition: var(--transition); }
+    .breadcrumb a:hover { color: var(--graphite); }
+    .breadcrumb span { font-size: 13px; color: var(--text-light); }
+
+    .sort-bar { display: flex; align-items: center; gap: 12px; }
+    .sort-label { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+    .sort-select {
+      height: 40px; padding: 0 36px 0 14px; border-radius: 100px;
+      border: 1.5px solid var(--beige); background: var(--milk);
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+      color: var(--graphite); cursor: pointer; outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 7L11 1' stroke='%237a7a7a' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center;
+      transition: var(--transition);
+    }
+    .sort-select:focus { border-color: var(--green-dark); }
+    .view-btns { display: flex; gap: 4px; }
+    .view-btn {
+      width: 38px; height: 38px; border-radius: var(--radius-sm); border: 1.5px solid var(--beige);
+      background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); transition: var(--transition);
+    }
+    .view-btn.active { background: var(--graphite); color: var(--white); border-color: var(--graphite); }
+    .view-btn:hover:not(.active) { border-color: var(--graphite); color: var(--graphite); }
+
+    .catalog-layout {
+      display: flex; gap: 32px; padding: 40px 0;
+    }
+
+    /* FILTERS */
+    .filters-sidebar { flex: 0 0 260px; }
+    .filters-panel {
+      background: var(--white); border-radius: var(--radius); padding: 28px;
+      position: sticky; top: 90px;
+    }
+    .filters-title {
+      font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700;
+      color: var(--graphite); margin-bottom: 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .filter-reset { font-size: 12px; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
+    .filter-reset:hover { color: var(--green-dark); }
+
+    .filter-group { margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--beige); }
+    .filter-group:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .filter-group-title { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; color: var(--graphite); margin-bottom: 14px; letter-spacing: .3px; }
+
+    .filter-options { display: flex; flex-direction: column; gap: 8px; }
+    .filter-option { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .filter-checkbox {
+      width: 18px; height: 18px; border-radius: 6px; border: 1.5px solid var(--beige);
+      background: var(--milk); flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      transition: var(--transition); cursor: pointer;
+    }
+    .filter-option input { display: none; }
+    .filter-option input:checked ~ .filter-checkbox { background: var(--graphite); border-color: var(--graphite); }
+    .filter-option input:checked ~ .filter-checkbox::after { content: '✓'; color: #fff; font-size: 11px; font-weight: 700; }
+    .filter-option-label { font-size: 14px; color: var(--graphite-light); transition: var(--transition); }
+    .filter-option:hover .filter-option-label { color: var(--graphite); }
+    .filter-count { margin-left: auto; font-size: 11px; color: var(--text-muted); background: var(--milk); padding: 2px 7px; border-radius: 100px; }
+
+    .price-range { display: flex; flex-direction: column; gap: 12px; }
+    .price-inputs { display: flex; align-items: center; gap: 8px; }
+    .price-input {
+      flex: 1; height: 38px; border: 1.5px solid var(--beige); border-radius: var(--radius-sm);
+      padding: 0 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--graphite);
+      outline: none; background: var(--milk); transition: var(--transition);
+    }
+    .price-input:focus { border-color: var(--green-dark); }
+    .price-sep { font-size: 13px; color: var(--text-muted); }
+    .price-slider {
+      width: 100%; accent-color: var(--green-dark); cursor: pointer;
+    }
+
+    .tag-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag-filter {
+      padding: 5px 12px; border-radius: 100px; border: 1.5px solid var(--beige);
+      font-size: 12px; font-weight: 500; color: var(--graphite-light); cursor: pointer;
+      transition: var(--transition); background: var(--milk);
+    }
+    .tag-filter:hover, .tag-filter.active { background: var(--graphite); color: var(--white); border-color: var(--graphite); }
+
+    /* CATALOG GRID */
+    .catalog-main { flex: 1; }
+    .results-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .results-count { font-size: 14px; color: var(--text-muted); }
+    .results-count strong { color: var(--graphite); font-weight: 600; }
+
+    .active-filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .active-filter {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--graphite); color: var(--white);
+      padding: 5px 12px; border-radius: 100px; font-size: 12px; font-weight: 500;
+    }
+    .active-filter button { background: none; border: none; color: rgba(255,255,255,.6); cursor: pointer; font-size: 14px; line-height: 1; }
+    .active-filter button:hover { color: var(--white); }
+
+    .cat-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .cat-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+    .load-more-wrap { display: flex; justify-content: center; margin-top: 48px; }
+    .load-more-btn {
+      padding: 16px 48px; border-radius: 100px;
+      border: 2px solid var(--beige); background: var(--white);
+      font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600;
+      color: var(--graphite); cursor: pointer; transition: var(--transition);
+    }
+    .load-more-btn:hover { border-color: var(--graphite); background: var(--graphite); color: var(--white); transform: translateY(-2px); }
+
+    /* ===== CATALOG MOBILE ===== */
+    @media (max-width: 768px) {
+      .catalog-page { padding-top: 60px; }
+      .catalog-hero { padding: 28px 0 20px; }
+      .catalog-hero .container { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .catalog-hero-left h1 { font-size: 26px; }
+      .sort-bar { width: 100%; overflow-x: auto; }
+      .sort-label { display: none; }
+      .catalog-layout { flex-direction: column; gap: 20px; padding: 20px 0; }
+      .filters-sidebar { flex: none; width: 100%; }
+      .filters-panel { position: static; }
+      .cat-grid-4, .cat-grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
+      .results-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
+    }
+    @media (max-width: 480px) {
+      .cat-grid-4, .cat-grid-3 { grid-template-columns: 1fr 1fr !important; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header" id="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><span class="logo-w">W</span>andoc</a>
+      <nav class="nav">
+        <a href="catalog.html" class="nav-link" style="background:var(--milk)">Каталог</a>
+        <a href="catalog.html?cat=skincare" class="nav-link">Уход</a>
+        <a href="catalog.html?cat=hair" class="nav-link">Волосы</a>
+        <a href="catalog.html?cat=cosm" class="nav-link">Косметика</a>
+        <a href="catalog.html?sale=1" class="nav-link nav-sale">Акции</a>
+      </nav>
+      <div class="header-actions">
+        <div class="search-wrap">
+          <input type="text" class="search-input" placeholder="Поиск..." id="searchInput" />
+          <button class="search-btn">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </button>
+        </div>
+        <a href="account.html" class="icon-btn">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </a>
+        <button class="icon-btn cart-btn" onclick="toggleCart()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="cart-count">3</span>
+        </button>
+        <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Меню">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE NAV DRAWER -->
+  <div class="mobile-nav" id="mobileNav">
+    <div class="mobile-search">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Поиск товаров..." id="mobileSearchInput" onkeydown="if(event.key==='Enter'){document.getElementById('searchInput').value=this.value;}" />
+    </div>
+    <div class="mobile-nav-links">
+      <a href="catalog.html" class="mobile-nav-link">Каталог<span class="arrow">›</span></a>
+      <a href="catalog.html?cat=skincare" class="mobile-nav-link">Уход за кожей<span class="arrow">›</span></a>
+      <a href="catalog.html?cat=hair" class="mobile-nav-link">Уход за волосами<span class="arrow">›</span></a>
+      <a href="catalog.html?cat=body" class="mobile-nav-link">Уход за телом<span class="arrow">›</span></a>
+      <a href="catalog.html?cat=cosm" class="mobile-nav-link">Косметика<span class="arrow">›</span></a>
+      <a href="catalog.html?sale=1" class="mobile-nav-link sale">🏷️ Акции<span class="arrow">›</span></a>
+    </div>
+    <div class="mobile-nav-actions">
+      <div class="mobile-nav-user">
+        <a href="account.html" class="btn-account"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Кабинет</a>
+        <a href="cart.html" class="btn-cart-m"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Корзина</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="catalog-page">
+    <!-- CATALOG HERO -->
+    <div class="catalog-hero">
+      <div class="container">
+        <div class="catalog-hero-left">
+          <div class="breadcrumb">
+            <a href="index.html">Главная</a>
+            <span>›</span>
+            <span style="color:var(--graphite); font-weight:500">Каталог</span>
+          </div>
+          <h1>Каталог</h1>
+          <p>359 товаров в наличии</p>
+        </div>
+        <div class="sort-bar">
+          <span class="sort-label">Сортировать:</span>
+          <select class="sort-select" id="sortSelect">
+            <option value="popular">По популярности</option>
+            <option value="price-asc">Цена: по возрастанию</option>
+            <option value="price-desc">Цена: по убыванию</option>
+            <option value="new">Новинки</option>
+            <option value="rating">По рейтингу</option>
+          </select>
+          <div class="view-btns">
+            <button class="view-btn active" id="grid4Btn" onclick="setView(4)" title="4 колонки">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="0" width="6" height="6" rx="1"/><rect x="10" y="0" width="6" height="6" rx="1"/><rect x="0" y="10" width="6" height="6" rx="1"/><rect x="10" y="10" width="6" height="6" rx="1"/></svg>
+            </button>
+            <button class="view-btn" id="grid3Btn" onclick="setView(3)" title="3 колонки">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="0" width="4" height="16" rx="1"/><rect x="6" y="0" width="4" height="16" rx="1"/><rect x="12" y="0" width="4" height="16" rx="1"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATEGORY QUICK TABS -->
+    <div style="background:var(--white); border-bottom:1px solid var(--beige); padding:0 40px;">
+      <div style="max-width:1280px; margin:0 auto; display:flex; gap:0; overflow-x:auto;">
+        <button class="cat-tab active" onclick="filterCat(this,'all')">Все товары</button>
+        <button class="cat-tab" onclick="filterCat(this,'hair')">Hair Care</button>
+        <button class="cat-tab" onclick="filterCat(this,'body')">Body Care</button>
+        <button class="cat-tab" onclick="filterCat(this,'skin')">Skincare</button>
+        <button class="cat-tab" onclick="filterCat(this,'cosm')">Cosmetics</button>
+      </div>
+    </div>
+    <style>
+      .cat-tab {
+        padding: 16px 24px; border: none; background: none; cursor: pointer; white-space: nowrap;
+        font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;
+        color: var(--text-muted); border-bottom: 2.5px solid transparent;
+        transition: var(--transition);
+      }
+      .cat-tab:hover { color: var(--graphite); }
+      .cat-tab.active { color: var(--graphite); border-bottom-color: var(--graphite); font-weight: 600; }
+    </style>
+
+    <div class="container">
+      <div class="catalog-layout">
+        <!-- FILTERS -->
+        <aside class="filters-sidebar">
+          <div class="filters-panel">
+            <div class="filters-title">
+              Фильтры
+              <span class="filter-reset" onclick="resetFilters()">Сбросить</span>
+            </div>
+
+            <div class="filter-group">
+              <div class="filter-group-title">Категория</div>
+              <div class="filter-options">
+                <label class="filter-option"><input type="checkbox" checked /><div class="filter-checkbox"></div><span class="filter-option-label">Hair Care</span><span class="filter-count">84</span></label>
+                <label class="filter-option"><input type="checkbox" /><div class="filter-checkbox"></div><span class="filter-option-label">Body Care</span><span class="filter-count">121</span></label>
+                <label class="filter-option"><input type="checkbox" /><div class="filter-checkbox"></div><span class="filter-option-label">Skincare</span><span class="filter-count">96</span></label>
+                <label class="filter-option"><input type="checkbox" /><div class="filter-checkbox"></div><span class="filter-option-label">Cosmetics</span><span class="filter-count">58</span></label>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <div class="filter-group-title">Цена, ₸</div>
+              <div class="price-range">
+                <div class="price-inputs">
+                  <input type="number" class="price-input" placeholder="От" value="0" />
+                  <span class="price-sep">—</span>
+                  <input type="number" class="price-input" placeholder="До" value="10000" />
+                </div>
+                <input type="range" class="price-slider" min="0" max="10000" value="10000" />
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <div class="filter-group-title">Бренд</div>
+              <div class="filter-options">
+                <label class="filter-option"><input type="checkbox" checked /><div class="filter-checkbox"></div><span class="filter-option-label">Wandoc</span><span class="filter-count">96</span></label>
+                <label class="filter-option"><input type="checkbox" /><div class="filter-checkbox"></div><span class="filter-option-label">CeraVe</span><span class="filter-count">44</span></label>
+                <label class="filter-option"><input type="checkbox" /><div class="filter-checkbox"></div><span class="filter-option-label">The Ordinary</span><span class="filter-count">38</span></label>
+                <label class="filter-option"><input type="checkbox" /><div class="filter-checkbox"></div><span class="filter-option-label">Laneige</span><span class="filter-count">27</span></label>
+                <label class="filter-option"><input type="checkbox" /><div class="filter-checkbox"></div><span class="filter-option-label">Innisfree</span><span class="filter-count">22</span></label>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <div class="filter-group-title">Рейтинг</div>
+              <div class="filter-options">
+                <label class="filter-option"><input type="checkbox" /><div class="filter-checkbox"></div><span class="filter-option-label">★★★★★ 5.0</span></label>
+                <label class="filter-option"><input type="checkbox" /><div class="filter-checkbox"></div><span class="filter-option-label">★★★★☆ 4.0+</span></label>
+                <label class="filter-option"><input type="checkbox" /><div class="filter-checkbox"></div><span class="filter-option-label">★★★☆☆ 3.0+</span></label>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <div class="filter-group-title">Особенности</div>
+              <div class="tag-filters">
+                <span class="tag-filter active" onclick="this.classList.toggle('active')">Vegan</span>
+                <span class="tag-filter" onclick="this.classList.toggle('active')">Cruelty-free</span>
+                <span class="tag-filter" onclick="this.classList.toggle('active')">Natural</span>
+                <span class="tag-filter" onclick="this.classList.toggle('active')">Organic</span>
+                <span class="tag-filter" onclick="this.classList.toggle('active')">SPF</span>
+                <span class="tag-filter" onclick="this.classList.toggle('active')">Anti-age</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- PRODUCTS -->
+        <div class="catalog-main">
+          <div class="results-bar">
+            <p class="results-count">Найдено <strong>84</strong> товара</p>
+            <div class="active-filters">
+              <div class="active-filter">Hair Care <button onclick="this.parentElement.remove()">✕</button></div>
+              <div class="active-filter">Wandoc <button onclick="this.parentElement.remove()">✕</button></div>
+            </div>
+          </div>
+
+          <div class="cat-grid-4" id="catalogGrid"></div>
+
+          <div class="load-more-wrap">
+            <button class="load-more-btn" onclick="loadMore()">Загрузить ещё</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CART SIDEBAR -->
+  <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+  <aside class="cart-sidebar" id="cartSidebar">
+    <div class="cart-sidebar-header">
+      <h3>Корзина <span class="cs-count">3</span></h3>
+      <button class="close-cart" onclick="toggleCart()">✕</button>
+    </div>
+    <div class="cart-items">
+      <div class="cart-item">
+        <div class="ci-img" style="background:linear-gradient(135deg,#d8b7b3,#e8ddd4)"></div>
+        <div class="ci-info">
+          <p class="ci-name">Rose Serum 30ml</p>
+          <p class="ci-brand">Wandoc</p>
+          <div class="ci-qty"><button>−</button><span>1</span><button>+</button></div>
+        </div>
+        <div class="ci-right"><p class="ci-price">2 490 ₸</p><button class="ci-remove">✕</button></div>
+      </div>
+    </div>
+    <div class="cart-footer">
+      <div class="promo-field"><input type="text" placeholder="Промокод" /><button>OK</button></div>
+      <div class="cart-total"><span>Итого</span><span class="ct-sum">2 490 ₸</span></div>
+      <a href="cart.html" class="btn btn-dark btn-full">Оформить заказ</a>
+    </div>
+  </aside>
+
+  <script>
+    const allProducts = [
+      { id:1, name:'Rose Hip Serum', brand:'Wandoc', price:2490, oldPrice:3200, rating:4.9, reviews:312, badge:'Хит', badgeClass:'powder', bg:'linear-gradient(135deg,#f4e8e8,#d8b7b3)', emoji:'🌹' },
+      { id:2, name:'Aloe Vera Shampoo', brand:'Wandoc', price:3190, rating:4.8, reviews:207, badge:'New', badgeClass:'green', bg:'linear-gradient(135deg,#e4f0e2,#b7c9b2)', emoji:'🌿' },
+      { id:3, name:'Milk Body Lotion', brand:'Wandoc', price:1890, oldPrice:2400, rating:4.7, reviews:188, badge:'-20%', badgeClass:'', bg:'linear-gradient(135deg,#f6f4f1,#e8ddd4)', emoji:'🥛' },
+      { id:4, name:'Vitamin C Cream', brand:'Wandoc', price:4290, rating:5.0, reviews:94, badge:'Premium', badgeClass:'green', bg:'linear-gradient(135deg,#fff4e2,#f5d8a0)', emoji:'🍊' },
+      { id:5, name:'Hydra Clay Mask', brand:'Wandoc', price:2190, oldPrice:2700, rating:4.6, reviews:145, badge:'-18%', badgeClass:'', bg:'linear-gradient(135deg,#e8edf4,#b8c4d8)', emoji:'💎' },
+      { id:6, name:'Lavender Body Oil', brand:'Wandoc', price:3490, rating:4.9, reviews:231, badge:'Хит', badgeClass:'powder', bg:'linear-gradient(135deg,#f0e8f4,#c8b0d8)', emoji:'💜' },
+      { id:7, name:'Green Tea Toner', brand:'Wandoc', price:1690, rating:4.7, reviews:178, badge:'New', badgeClass:'green', bg:'linear-gradient(135deg,#e8f4ea,#9ec4a4)', emoji:'🍵' },
+      { id:8, name:'Keratin Conditioner', brand:'Wandoc', price:2890, oldPrice:3500, rating:4.8, reviews:256, badge:'-17%', badgeClass:'', bg:'linear-gradient(135deg,#f4f0e8,#d4c4a8)', emoji:'✨' },
+      { id:9, name:'Hyaluronic Eye Cream', brand:'CeraVe', price:3890, rating:4.9, reviews:412, badge:'Бестселлер', badgeClass:'green', bg:'linear-gradient(135deg,#e8f4f8,#a8c8d8)', emoji:'👁️' },
+      { id:10, name:'Retinol Night Serum', brand:'The Ordinary', price:2290, oldPrice:2800, rating:4.7, reviews:339, badge:'-18%', badgeClass:'', bg:'linear-gradient(135deg,#faf0e8,#e8c8a8)', emoji:'🌙' },
+      { id:11, name:'Centella Ampoule', brand:'Innisfree', price:1990, rating:4.8, reviews:221, badge:'New', badgeClass:'green', bg:'linear-gradient(135deg,#e8f0e4,#a4c4a0)', emoji:'🌱' },
+      { id:12, name:'Sleeping Water Mask', brand:'Laneige', price:4890, rating:4.9, reviews:567, badge:'Хит', badgeClass:'powder', bg:'linear-gradient(135deg,#e4e8f8,#a8b4d8)', emoji:'💤' },
+    ];
+
+    let currentView = 4;
+
+    function renderCatalog(products) {
+      const grid = document.getElementById('catalogGrid');
+      grid.innerHTML = products.map(p => `
+        <div class="product-card reveal" onclick="window.location='product.html'">
+          <div class="pc-img">
+            <div class="pc-img-inner" style="background:${p.bg}; font-size:60px; line-height:1;">${p.emoji}</div>
+            ${p.badge ? `<span class="pc-badge ${p.badgeClass}">${p.badge}</span>` : ''}
+            <button class="pc-fav" onclick="event.stopPropagation();toggleFav(${p.id},this)">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+          <div class="pc-info">
+            <p class="pc-brand">${p.brand}</p>
+            <h3 class="pc-name">${p.name}</h3>
+            <div class="pc-rating">
+              <span class="pc-stars">${'★'.repeat(Math.floor(p.rating))}${p.rating%1?'☆':''}</span>
+              <span class="pc-count">(${p.reviews})</span>
+            </div>
+            <div class="pc-bottom">
+              <div>
+                <span class="pc-price">${p.price.toLocaleString('ru')} ₸</span>
+                ${p.oldPrice ? `<span class="pc-old">${p.oldPrice.toLocaleString('ru')} ₸</span>` : ''}
+              </div>
+              <button class="pc-cart-btn" onclick="event.stopPropagation();addToCart(${p.id})">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      initReveal();
+    }
+
+    function setView(cols) {
+      currentView = cols;
+      const grid = document.getElementById('catalogGrid');
+      grid.className = cols === 4 ? 'cat-grid-4' : 'cat-grid-3';
+      document.getElementById('grid4Btn').classList.toggle('active', cols === 4);
+      document.getElementById('grid3Btn').classList.toggle('active', cols === 3);
+    }
+
+    function filterCat(btn, cat) {
+      document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function resetFilters() {
+      document.querySelectorAll('.filter-option input').forEach(i => i.checked = false);
+      showToast('Фильтры сброшены');
+    }
+
+    function loadMore() {
+      const btn = document.querySelector('.load-more-btn');
+      btn.textContent = 'Загрузка...';
+      setTimeout(() => { btn.textContent = 'Загрузить ещё'; showToast('Загружено ещё 12 товаров'); }, 1000);
+    }
+
+    // Search
+    document.getElementById('searchInput').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      const filtered = allProducts.filter(p => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q));
+      renderCatalog(filtered.length ? filtered : allProducts);
+    });
+
+    // Sort
+    document.getElementById('sortSelect').addEventListener('change', e => {
+      let sorted = [...allProducts];
+      if (e.target.value === 'price-asc') sorted.sort((a,b) => a.price - b.price);
+      if (e.target.value === 'price-desc') sorted.sort((a,b) => b.price - a.price);
+      if (e.target.value === 'rating') sorted.sort((a,b) => b.rating - a.rating);
+      renderCatalog(sorted);
+    });
+
+    // Cart + Toast (same as main)
+    let cartCount = 3;
+    function toggleCart() {
+      document.getElementById('cartSidebar').classList.toggle('active');
+      document.getElementById('cartOverlay').classList.toggle('active');
+    }
+    function toggleMobileNav() {
+      const nav = document.getElementById('mobileNav');
+      const ham = document.getElementById('hamburger');
+      const open = nav.classList.toggle('open');
+      ham.classList.toggle('open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+    document.querySelectorAll('.mobile-nav-link').forEach(l => {
+      l.addEventListener('click', () => {
+        document.getElementById('mobileNav').classList.remove('open');
+        document.getElementById('hamburger').classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+    function addToCart(id) {
+      cartCount++;
+      document.querySelector('.cart-count').textContent = cartCount;
+      showToast('Товар добавлен в корзину 🛍️');
+    }
+    function toggleFav(id, btn) {
+      btn.classList.toggle('active');
+      const isFav = btn.classList.contains('active');
+      btn.style.color = isFav ? '#e05a5a' : '';
+      btn.querySelector('path').setAttribute('fill', isFav ? '#e05a5a' : 'none');
+      showToast(isFav ? 'Добавлено в избранное ❤️' : 'Удалено из избранного');
+    }
+    function showToast(msg) {
+      let t = document.getElementById('toast');
+      if (!t) { t = document.createElement('div'); t.id='toast'; t.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f1f1f;color:#fff;padding:12px 24px;border-radius:100px;font-family:Poppins,sans-serif;font-size:13px;font-weight:500;z-index:1000;opacity:0;transition:.3s ease;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.25);'; document.body.appendChild(t); }
+      t.textContent=msg; t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+      clearTimeout(t._t); t._t=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(10px)';},2500);
+    }
+    function initReveal() {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e,i) => { if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*60);io.unobserve(e.target);} });
+      },{threshold:.1});
+      document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+    }
+    window.addEventListener('scroll',()=>{
+      const h=document.getElementById('header');
+      h.style.boxShadow=window.scrollY>10?'0 4px 24px rgba(31,31,31,.08)':'none';
+    });
+
+    renderCatalog(allProducts);
+  </script>
+</body>
+</html>

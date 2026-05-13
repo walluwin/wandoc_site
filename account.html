@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Личный кабинет — Wandoc</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .account-page { padding-top: 72px; background: var(--milk); min-height: 100vh; padding-bottom: 80px; }
+    .account-inner { padding: 48px 0; }
+
+    .account-layout { display: grid; grid-template-columns: 280px 1fr; gap: 32px; align-items: start; }
+
+    /* Sidebar */
+    .acc-sidebar { position: sticky; top: 90px; }
+    .acc-profile-card {
+      background: var(--white); border-radius: var(--radius); padding: 32px 24px;
+      text-align: center; margin-bottom: 16px;
+    }
+    .acc-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), var(--powder));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Poppins', sans-serif; font-size: 28px; font-weight: 800;
+      color: var(--white); margin: 0 auto 16px;
+    }
+    .acc-name { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 700; color: var(--graphite); margin-bottom: 4px; }
+    .acc-email { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+    .acc-level {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #f5d8a0, #f0c060);
+      color: #7a5c00; font-size: 12px; font-weight: 700;
+      padding: 5px 14px; border-radius: 100px;
+    }
+
+    .acc-nav { background: var(--white); border-radius: var(--radius); overflow: hidden; }
+    .acc-nav-item {
+      display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+      font-size: 14px; font-weight: 500; color: var(--graphite-light);
+      cursor: pointer; transition: var(--transition); border: none; background: none;
+      width: 100%; text-align: left; border-left: 3px solid transparent;
+      text-decoration: none;
+    }
+    .acc-nav-item:hover { background: var(--milk); color: var(--graphite); }
+    .acc-nav-item.active { background: var(--milk); color: var(--graphite); font-weight: 700; border-left-color: var(--graphite); }
+    .acc-nav-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--milk); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; transition: var(--transition); }
+    .acc-nav-item.active .acc-nav-icon { background: var(--graphite); }
+    .acc-nav-sep { height: 1px; background: var(--beige); margin: 4px 0; }
+    .acc-nav-badge { margin-left: auto; background: var(--green-dark); color: var(--white); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
+
+    /* Main */
+    .acc-main {}
+    .acc-section { display: none; }
+    .acc-section.active { display: block; }
+    .acc-section-title { font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: 800; letter-spacing: -.5px; color: var(--graphite); margin-bottom: 24px; }
+
+    /* Orders */
+    .orders-list { display: flex; flex-direction: column; gap: 16px; }
+    .order-card {
+      background: var(--white); border-radius: var(--radius); padding: 24px;
+      transition: var(--transition);
+    }
+    .order-card:hover { box-shadow: var(--shadow); }
+    .order-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .order-num { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; color: var(--graphite); }
+    .order-date { font-size: 13px; color: var(--text-muted); }
+    .order-status { padding: 5px 14px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+    .status-delivered { background: #e8f4e6; color: #3a6e38; }
+    .status-shipping { background: #e8f0f8; color: #2a4a7a; }
+    .status-processing { background: #fff4e2; color: #7a5c00; }
+    .order-items-preview { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .oip { width: 60px; height: 60px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+    .order-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid var(--beige); }
+    .order-total { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; color: var(--graphite); }
+    .order-actions { display: flex; gap: 8px; }
+    .order-btn { padding: 8px 16px; border-radius: 100px; font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); }
+    .order-btn-ghost { background: none; border: 1.5px solid var(--beige); color: var(--graphite); }
+    .order-btn-ghost:hover { border-color: var(--graphite); }
+    .order-btn-dark { background: var(--graphite); border: none; color: var(--white); }
+    .order-btn-dark:hover { background: var(--green-dark); }
+
+    /* Wishlist */
+    .wishlist-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+    /* Addresses */
+    .addresses-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .address-card {
+      background: var(--white); border-radius: var(--radius); padding: 24px;
+      border: 2px solid transparent; transition: var(--transition); cursor: pointer; position: relative;
+    }
+    .address-card.default { border-color: var(--graphite); }
+    .address-card:hover { box-shadow: var(--shadow); }
+    .addr-default { position: absolute; top: 16px; right: 16px; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--graphite); background: var(--beige); padding: 4px 10px; border-radius: 100px; }
+    .addr-name { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; color: var(--graphite); margin-bottom: 8px; }
+    .addr-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; }
+    .addr-actions { display: flex; gap: 8px; }
+    .addr-btn { padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); }
+    .addr-btn-edit { background: var(--milk); border: 1.5px solid var(--beige); color: var(--graphite); }
+    .addr-btn-edit:hover { border-color: var(--graphite); }
+    .addr-btn-del { background: none; border: 1.5px solid transparent; color: #e05a5a; }
+    .addr-btn-del:hover { background: #fdf0f0; border-color: #fcd0d0; }
+    .addr-add-card {
+      background: var(--white); border-radius: var(--radius); padding: 24px;
+      border: 2px dashed var(--beige); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: var(--transition); min-height: 160px;
+      flex-direction: column; gap: 10px; color: var(--text-muted); font-size: 14px; font-weight: 500;
+    }
+    .addr-add-card:hover { border-color: var(--graphite); color: var(--graphite); }
+    .addr-add-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--milk); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+
+    /* Settings */
+    .settings-card { background: var(--white); border-radius: var(--radius); padding: 32px; margin-bottom: 16px; }
+    .settings-card h3 { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 20px; color: var(--graphite); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
+    .form-input {
+      height: 46px; border: 1.5px solid var(--beige); border-radius: var(--radius-sm);
+      padding: 0 16px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--graphite);
+      outline: none; background: var(--milk); transition: var(--transition);
+    }
+    .form-input:focus { border-color: var(--green-dark); background: var(--white); }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--beige); }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-info p { font-size: 14px; font-weight: 500; color: var(--graphite); }
+    .toggle-info span { font-size: 12px; color: var(--text-muted); }
+    .toggle {
+      width: 44px; height: 24px; border-radius: 100px; background: var(--beige); border: none;
+      cursor: pointer; position: relative; transition: var(--transition); flex-shrink: 0;
+    }
+    .toggle.on { background: var(--green-dark); }
+    .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--white); transition: var(--transition); box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+    .toggle.on::after { left: calc(100% - 21px); }
+
+    /* Stats */
+    .acc-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .acc-stat { background: var(--white); border-radius: var(--radius); padding: 20px; text-align: center; }
+    .acc-stat-num { font-family: 'Poppins', sans-serif; font-size: 28px; font-weight: 800; color: var(--graphite); margin-bottom: 4px; }
+    .acc-stat-label { font-size: 12px; color: var(--text-muted); }
+
+    /* ===== ACCOUNT MOBILE ===== */
+    @media (max-width: 1024px) {
+      .account-layout { grid-template-columns: 1fr; }
+      .acc-sidebar { position: static; }
+      .acc-stats { grid-template-columns: repeat(2, 1fr); }
+      .wishlist-grid { grid-template-columns: repeat(2, 1fr); }
+      .addresses-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .account-page { padding-top: 60px; }
+      .account-inner { padding: 20px 0 48px; }
+      .acc-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .acc-stat { padding: 14px; }
+      .acc-stat-num { font-size: 22px; }
+      .acc-profile-card { padding: 24px 16px; }
+      .acc-section-title { font-size: 20px; }
+      .order-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .order-footer { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .order-actions { width: 100%; }
+      .order-btn { flex: 1; text-align: center; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: 1; }
+      .wishlist-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .settings-card { padding: 20px 16px; }
+    }
+    @media (max-width: 480px) {
+      .acc-stats { grid-template-columns: repeat(2, 1fr); }
+      .wishlist-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .acc-nav-item { padding: 12px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header" id="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><span class="logo-w">W</span>andoc</a>
+      <nav class="nav">
+        <a href="catalog.html" class="nav-link">Каталог</a>
+        <a href="catalog.html?cat=skincare" class="nav-link">Уход</a>
+        <a href="catalog.html?cat=hair" class="nav-link">Волосы</a>
+        <a href="catalog.html?cat=cosm" class="nav-link">Косметика</a>
+        <a href="catalog.html?sale=1" class="nav-link nav-sale">Акции</a>
+      </nav>
+      <div class="header-actions">
+        <a href="account.html" class="icon-btn" style="background:var(--milk)">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </a>
+        <a href="cart.html" class="icon-btn">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="cart-count">3</span>
+        </a>
+        <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Меню"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE NAV DRAWER -->
+  <div class="mobile-nav" id="mobileNav">
+    <div class="mobile-search">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Поиск товаров..." onkeydown="if(event.key==='Enter'&&this.value.trim())window.location='catalog.html?q='+encodeURIComponent(this.value.trim())" />
+    </div>
+    <div class="mobile-nav-links">
+      <a href="catalog.html" class="mobile-nav-link">Каталог<span class="arrow">›</span></a>
+      <a href="catalog.html?cat=skincare" class="mobile-nav-link">Уход за кожей<span class="arrow">›</span></a>
+      <a href="catalog.html?cat=hair" class="mobile-nav-link">Уход за волосами<span class="arrow">›</span></a>
+      <a href="catalog.html?cat=body" class="mobile-nav-link">Уход за телом<span class="arrow">›</span></a>
+      <a href="catalog.html?cat=cosm" class="mobile-nav-link">Косметика<span class="arrow">›</span></a>
+      <a href="catalog.html?sale=1" class="mobile-nav-link sale">🏷️ Акции<span class="arrow">›</span></a>
+    </div>
+    <div class="mobile-nav-actions">
+      <div class="mobile-nav-user">
+        <a href="account.html" class="btn-account" style="background:var(--graphite);color:#fff;border:none"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Кабинет</a>
+        <a href="cart.html" class="btn-cart-m"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Корзина</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="account-page">
+    <div class="container account-inner">
+      <div class="account-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="acc-sidebar">
+          <div class="acc-profile-card">
+            <div class="acc-avatar">А</div>
+            <p class="acc-name">Айгерим Сейткали</p>
+            <p class="acc-email">aigerim@mail.ru</p>
+            <span class="acc-level">⭐ Gold Member</span>
+          </div>
+          <nav class="acc-nav">
+            <button class="acc-nav-item active" onclick="showTab('orders',this)">
+              <div class="acc-nav-icon">📦</div>
+              Мои заказы
+              <span class="acc-nav-badge">3</span>
+            </button>
+            <button class="acc-nav-item" onclick="showTab('wishlist',this)">
+              <div class="acc-nav-icon">❤️</div>
+              Избранное
+              <span class="acc-nav-badge" style="background:var(--powder-dark)">5</span>
+            </button>
+            <div class="acc-nav-sep"></div>
+            <button class="acc-nav-item" onclick="showTab('addresses',this)">
+              <div class="acc-nav-icon">📍</div>
+              Адреса
+            </button>
+            <button class="acc-nav-item" onclick="showTab('settings',this)">
+              <div class="acc-nav-icon">⚙️</div>
+              Настройки
+            </button>
+            <div class="acc-nav-sep"></div>
+            <a href="index.html" class="acc-nav-item" style="color:#e05a5a">
+              <div class="acc-nav-icon">🚪</div>
+              Выйти
+            </a>
+          </nav>
+        </aside>
+
+        <!-- MAIN -->
+        <div class="acc-main">
+
+          <!-- Stats -->
+          <div class="acc-stats">
+            <div class="acc-stat">
+              <div class="acc-stat-num">12</div>
+              <div class="acc-stat-label">Всего заказов</div>
+            </div>
+            <div class="acc-stat">
+              <div class="acc-stat-num">5</div>
+              <div class="acc-stat-label">Избранных</div>
+            </div>
+            <div class="acc-stat">
+              <div class="acc-stat-num" style="color:var(--green-dark)">840 ₸</div>
+              <div class="acc-stat-label">Бонусов</div>
+            </div>
+            <div class="acc-stat">
+              <div class="acc-stat-num">Gold</div>
+              <div class="acc-stat-label">Статус</div>
+            </div>
+          </div>
+
+          <!-- ORDERS -->
+          <div class="acc-section active" id="tab-orders">
+            <h2 class="acc-section-title">Мои заказы</h2>
+            <div class="orders-list">
+
+              <div class="order-card">
+                <div class="order-header">
+                  <div>
+                    <p class="order-num">Заказ #W-2025-0481</p>
+                    <p class="order-date">12 мая 2025</p>
+                  </div>
+                  <span class="order-status status-delivered">✓ Доставлен</span>
+                </div>
+                <div class="order-items-preview">
+                  <div class="oip" style="background:linear-gradient(135deg,#f4e8e8,#d8b7b3)">🌹</div>
+                  <div class="oip" style="background:linear-gradient(135deg,#e4f0e2,#b7c9b2)">🌿</div>
+                  <div class="oip" style="background:linear-gradient(135deg,#fff4e2,#f5d8a0)">🍊</div>
+                </div>
+                <div class="order-footer">
+                  <span class="order-total">13 160 ₸</span>
+                  <div class="order-actions">
+                    <button class="order-btn order-btn-ghost">Повторить</button>
+                    <button class="order-btn order-btn-dark" onclick="showToast('Отзыв оставлен ✓')">Оставить отзыв</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="order-card">
+                <div class="order-header">
+                  <div>
+                    <p class="order-num">Заказ #W-2025-0339</p>
+                    <p class="order-date">28 апреля 2025</p>
+                  </div>
+                  <span class="order-status status-shipping">🚚 В пути</span>
+                </div>
+                <div class="order-items-preview">
+                  <div class="oip" style="background:linear-gradient(135deg,#e8edf4,#b8c4d8)">💎</div>
+                  <div class="oip" style="background:linear-gradient(135deg,#f0e8f4,#c8b0d8)">💜</div>
+                </div>
+                <div class="order-footer">
+                  <span class="order-total">5 680 ₸</span>
+                  <div class="order-actions">
+                    <button class="order-btn order-btn-ghost" onclick="showToast('Открываем трекинг...')">Отследить</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="order-card">
+                <div class="order-header">
+                  <div>
+                    <p class="order-num">Заказ #W-2025-0211</p>
+                    <p class="order-date">10 апреля 2025</p>
+                  </div>
+                  <span class="order-status status-processing">⏳ Обрабатывается</span>
+                </div>
+                <div class="order-items-preview">
+                  <div class="oip" style="background:linear-gradient(135deg,#f6f4f1,#e8ddd4)">🥛</div>
+                </div>
+                <div class="order-footer">
+                  <span class="order-total">1 890 ₸</span>
+                  <div class="order-actions">
+                    <button class="order-btn order-btn-ghost" onclick="showToast('Запрос на отмену отправлен')">Отменить</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- WISHLIST -->
+          <div class="acc-section" id="tab-wishlist">
+            <h2 class="acc-section-title">Избранное</h2>
+            <div class="wishlist-grid" id="wishlistGrid"></div>
+          </div>
+
+          <!-- ADDRESSES -->
+          <div class="acc-section" id="tab-addresses">
+            <h2 class="acc-section-title">Мои адреса</h2>
+            <div class="addresses-grid">
+              <div class="address-card default">
+                <span class="addr-default">По умолчанию</span>
+                <p class="addr-name">Айгерим Сейткали</p>
+                <p class="addr-text">г. Алматы, ул. Достык 5, кв. 12<br />050000, Казахстан<br />+7 707 123 45 67</p>
+                <div class="addr-actions">
+                  <button class="addr-btn addr-btn-edit" onclick="showToast('Редактирование адреса...')">Изменить</button>
+                  <button class="addr-btn addr-btn-del" onclick="showToast('Адрес удалён')">Удалить</button>
+                </div>
+              </div>
+              <div class="address-card">
+                <p class="addr-name">Работа</p>
+                <p class="addr-text">г. Алматы, пр. Абая 150, оф. 304<br />050000, Казахстан<br />+7 707 123 45 67</p>
+                <div class="addr-actions">
+                  <button class="addr-btn addr-btn-edit" onclick="showToast('Редактирование адреса...')">Изменить</button>
+                  <button class="addr-btn addr-btn-del" onclick="showToast('Адрес удалён')">Удалить</button>
+                </div>
+              </div>
+              <div class="addr-add-card" onclick="showToast('Форма добавления адреса...')">
+                <div class="addr-add-icon">＋</div>
+                <span>Добавить адрес</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SETTINGS -->
+          <div class="acc-section" id="tab-settings">
+            <h2 class="acc-section-title">Настройки</h2>
+
+            <div class="settings-card">
+              <h3>Личные данные</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Имя</label>
+                  <input type="text" class="form-input" value="Айгерим" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Фамилия</label>
+                  <input type="text" class="form-input" value="Сейткали" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-input" value="aigerim@mail.ru" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Телефон</label>
+                  <input type="tel" class="form-input" value="+7 707 123 45 67" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Дата рождения</label>
+                  <input type="date" class="form-input" value="1995-06-15" />
+                </div>
+              </div>
+              <div style="margin-top:20px">
+                <button class="btn btn-dark" onclick="showToast('Данные сохранены ✓')">Сохранить изменения</button>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <h3>Уведомления</h3>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <p>Email-рассылка</p>
+                  <span>Новинки и акции</span>
+                </div>
+                <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <p>SMS-уведомления</p>
+                  <span>Статус заказов</span>
+                </div>
+                <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <p>Push-уведомления</p>
+                  <span>Скидки на любимые товары</span>
+                </div>
+                <button class="toggle" onclick="this.classList.toggle('on')"></button>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <p>Персональные предложения</p>
+                  <span>На основе ваших покупок</span>
+                </div>
+                <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <h3>Безопасность</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Текущий пароль</label>
+                  <input type="password" class="form-input" placeholder="••••••••" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Новый пароль</label>
+                  <input type="password" class="form-input" placeholder="••••••••" />
+                </div>
+              </div>
+              <div style="margin-top:20px">
+                <button class="btn btn-dark" onclick="showToast('Пароль изменён ✓')">Сменить пароль</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mobile nav
+    function toggleMobileNav() {
+      const nav = document.getElementById('mobileNav');
+      const ham = document.getElementById('hamburger');
+      const open = nav.classList.toggle('open');
+      ham.classList.toggle('open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+    document.querySelectorAll('.mobile-nav-link').forEach(l => {
+      l.addEventListener('click', () => {
+        document.getElementById('mobileNav').classList.remove('open');
+        document.getElementById('hamburger').classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // Tab switching
+    function showTab(id, btn) {
+      document.querySelectorAll('.acc-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.acc-nav-item').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    // Wishlist products
+    const wishProds = [
+      { name:'Vitamin C Cream', brand:'Wandoc', price:4290, rating:5.0, reviews:94, bg:'linear-gradient(135deg,#fff4e2,#f5d8a0)', emoji:'🍊' },
+      { name:'Lavender Body Oil', brand:'Wandoc', price:3490, rating:4.9, reviews:231, bg:'linear-gradient(135deg,#f0e8f4,#c8b0d8)', emoji:'💜' },
+      { name:'Sleeping Water Mask', brand:'Laneige', price:4890, rating:4.9, reviews:567, bg:'linear-gradient(135deg,#e4e8f8,#a8b4d8)', emoji:'💤' },
+      { name:'Hydra Clay Mask', brand:'Wandoc', price:2190, oldPrice:2700, rating:4.6, reviews:145, bg:'linear-gradient(135deg,#e8edf4,#b8c4d8)', emoji:'💎' },
+      { name:'Green Tea Toner', brand:'Wandoc', price:1690, rating:4.7, reviews:178, bg:'linear-gradient(135deg,#e8f4ea,#9ec4a4)', emoji:'🍵' },
+    ];
+
+    const wg = document.getElementById('wishlistGrid');
+    wg.innerHTML = wishProds.map(p => `
+      <div class="product-card">
+        <div class="pc-img">
+          <div class="pc-img-inner" style="background:${p.bg};font-size:60px;line-height:1">${p.emoji}</div>
+          <button class="pc-fav" style="opacity:1;transform:scale(1);color:#e05a5a" onclick="showToast('Удалено из избранного')">
+            <svg width="16" height="16" fill="#e05a5a" stroke="#e05a5a" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
+        <div class="pc-info">
+          <p class="pc-brand">${p.brand}</p>
+          <h3 class="pc-name">${p.name}</h3>
+          <div class="pc-rating"><span class="pc-stars">${'★'.repeat(Math.floor(p.rating))}</span><span class="pc-count">(${p.reviews})</span></div>
+          <div class="pc-bottom">
+            <div>
+              <span class="pc-price">${p.price.toLocaleString('ru')} ₸</span>
+              ${p.oldPrice ? `<span class="pc-old">${p.oldPrice.toLocaleString('ru')} ₸</span>` : ''}
+            </div>
+            <button class="pc-cart-btn" onclick="showToast('Добавлено в корзину 🛍️')">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    function showToast(msg) {
+      let t = document.getElementById('toast');
+      if (!t) { t = document.createElement('div'); t.id='toast'; t.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f1f1f;color:#fff;padding:12px 24px;border-radius:100px;font-family:Poppins,sans-serif;font-size:13px;font-weight:500;z-index:1000;opacity:0;transition:.3s ease;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.25);'; document.body.appendChild(t); }
+      t.textContent=msg; t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+      clearTimeout(t._t); t._t=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(10px)';},2500);
+    }
+
+    window.addEventListener('scroll', () => {
+      const h = document.getElementById('header');
+      h.style.boxShadow = window.scrollY > 10 ? '0 4px 24px rgba(31,31,31,.08)' : 'none';
+    });
+  </script>
+</body>
+</html>

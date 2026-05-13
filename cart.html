@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Корзина — Wandoc</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .cart-page { padding-top: 72px; background: var(--milk); min-height: 100vh; padding-bottom: 80px; }
+    .cart-page-inner { padding: 48px 0; }
+    .cart-page h1 { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+    .cart-page-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 40px; }
+
+    .cart-layout { display: grid; grid-template-columns: 1fr 380px; gap: 32px; align-items: start; }
+
+    .cart-items-list { display: flex; flex-direction: column; gap: 16px; }
+    .cil-item {
+      background: var(--white); border-radius: var(--radius);
+      padding: 24px; display: flex; align-items: center; gap: 20px;
+      transition: var(--transition);
+    }
+    .cil-item:hover { box-shadow: var(--shadow); }
+    .cil-img { width: 90px; height: 90px; border-radius: var(--radius-sm); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 44px; }
+    .cil-info { flex: 1; }
+    .cil-brand { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .cil-name { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; color: var(--graphite); margin-bottom: 6px; }
+    .cil-variant { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+    .cil-qty-wrap { display: flex; align-items: center; gap: 0; background: var(--milk); border-radius: 100px; border: 1.5px solid var(--beige); width: fit-content; overflow: hidden; }
+    .cil-qty-btn { width: 36px; height: 36px; border: none; background: none; cursor: pointer; font-size: 18px; color: var(--graphite); transition: var(--transition); }
+    .cil-qty-btn:hover { background: var(--beige); }
+    .cil-qty-num { min-width: 36px; text-align: center; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; }
+    .cil-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+    .cil-price { font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 800; color: var(--graphite); }
+    .cil-remove { background: none; border: none; font-size: 12px; color: var(--text-light); cursor: pointer; padding: 4px 8px; border-radius: 100px; transition: var(--transition); }
+    .cil-remove:hover { background: #fdf0f0; color: #e05a5a; }
+
+    /* Summary */
+    .cart-summary { background: var(--white); border-radius: var(--radius); padding: 32px; position: sticky; top: 90px; }
+    .cs-title { font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 24px; }
+    .cs-rows { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+    .cs-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--graphite-light); }
+    .cs-row.total { font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 800; color: var(--graphite); border-top: 1.5px solid var(--beige); padding-top: 16px; margin-top: 4px; }
+    .cs-row.discount { color: #3a8a3a; }
+    .cs-promo { display: flex; gap: 8px; margin-bottom: 20px; }
+    .cs-promo input { flex: 1; height: 44px; border: 1.5px solid var(--beige); border-radius: var(--radius-sm); padding: 0 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--graphite); outline: none; background: var(--milk); transition: var(--transition); }
+    .cs-promo input:focus { border-color: var(--green-dark); }
+    .cs-promo button { height: 44px; padding: 0 18px; border-radius: var(--radius-sm); background: var(--graphite); color: var(--white); border: none; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; transition: var(--transition); }
+    .cs-promo button:hover { background: var(--green-dark); }
+    .cs-checkout { display: flex; flex-direction: column; gap: 10px; }
+    .cs-note { font-size: 12px; color: var(--text-muted); text-align: center; line-height: 1.5; }
+    .pay-row { display: flex; gap: 6px; justify-content: center; margin-top: 4px; }
+    .pay-chip { background: var(--milk); border: 1px solid var(--beige); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; color: var(--text-muted); }
+
+    /* ===== CART MOBILE ===== */
+    @media (max-width: 1024px) {
+      .cart-layout { grid-template-columns: 1fr; }
+      .cart-summary { position: static; }
+    }
+    @media (max-width: 768px) {
+      .cart-page { padding-top: 60px; }
+      .cart-page-inner { padding: 20px 0 48px; }
+      .cart-page h1 { font-size: 26px; }
+      .cil-item { flex-wrap: wrap; gap: 12px; padding: 16px; }
+      .cil-img { width: 70px; height: 70px; font-size: 32px; }
+      .cil-name { font-size: 13px; }
+      .cil-price { font-size: 16px; }
+    }
+    @media (max-width: 480px) {
+      .cil-right { flex-direction: row; align-items: center; gap: 12px; width: 100%; justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header" id="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><span class="logo-w">W</span>andoc</a>
+      <nav class="nav">
+        <a href="catalog.html" class="nav-link">Каталог</a>
+        <a href="catalog.html?cat=skincare" class="nav-link">Уход</a>
+        <a href="catalog.html?cat=hair" class="nav-link">Волосы</a>
+        <a href="catalog.html?cat=cosm" class="nav-link">Косметика</a>
+        <a href="catalog.html?sale=1" class="nav-link nav-sale">Акции</a>
+      </nav>
+      <div class="header-actions">
+        <a href="account.html" class="icon-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></a>
+        <a href="cart.html" class="icon-btn" style="background:var(--milk)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-count">3</span></a>
+        <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Меню"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE NAV DRAWER -->
+  <div class="mobile-nav" id="mobileNav">
+    <div class="mobile-search">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Поиск товаров..." onkeydown="if(event.key==='Enter'&&this.value.trim())window.location='catalog.html?q='+encodeURIComponent(this.value.trim())" />
+    </div>
+    <div class="mobile-nav-links">
+      <a href="catalog.html" class="mobile-nav-link">Каталог<span class="arrow">›</span></a>
+      <a href="catalog.html?cat=skincare" class="mobile-nav-link">Уход за кожей<span class="arrow">›</span></a>
+      <a href="catalog.html?cat=hair" class="mobile-nav-link">Уход за волосами<span class="arrow">›</span></a>
+      <a href="catalog.html?cat=body" class="mobile-nav-link">Уход за телом<span class="arrow">›</span></a>
+      <a href="catalog.html?cat=cosm" class="mobile-nav-link">Косметика<span class="arrow">›</span></a>
+      <a href="catalog.html?sale=1" class="mobile-nav-link sale">🏷️ Акции<span class="arrow">›</span></a>
+    </div>
+    <div class="mobile-nav-actions">
+      <div class="mobile-nav-user">
+        <a href="account.html" class="btn-account"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Кабинет</a>
+        <a href="cart.html" class="btn-cart-m" style="background:var(--milk);color:var(--graphite)"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Корзина</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="cart-page">
+    <div class="container cart-page-inner">
+      <h1>Корзина</h1>
+      <p class="cart-page-sub">3 товара</p>
+      <div class="cart-layout">
+        <div class="cart-items-list">
+          <div class="cil-item">
+            <div class="cil-img" style="background:linear-gradient(135deg,#f4e8e8,#d8b7b3)">🌹</div>
+            <div class="cil-info">
+              <p class="cil-brand">Wandoc</p>
+              <h3 class="cil-name">Rose Hip Serum</h3>
+              <p class="cil-variant">30 ml</p>
+              <div class="cil-qty-wrap"><button class="cil-qty-btn" onclick="chQty(this,-1)">−</button><span class="cil-qty-num">1</span><button class="cil-qty-btn" onclick="chQty(this,1)">+</button></div>
+            </div>
+            <div class="cil-right"><span class="cil-price">2 490 ₸</span><button class="cil-remove" onclick="removeItem(this)">Удалить ✕</button></div>
+          </div>
+          <div class="cil-item">
+            <div class="cil-img" style="background:linear-gradient(135deg,#e4f0e2,#b7c9b2)">🌿</div>
+            <div class="cil-info">
+              <p class="cil-brand">Wandoc</p>
+              <h3 class="cil-name">Aloe Vera Shampoo</h3>
+              <p class="cil-variant">250 ml</p>
+              <div class="cil-qty-wrap"><button class="cil-qty-btn" onclick="chQty(this,-1)">−</button><span class="cil-qty-num">2</span><button class="cil-qty-btn" onclick="chQty(this,1)">+</button></div>
+            </div>
+            <div class="cil-right"><span class="cil-price">6 380 ₸</span><button class="cil-remove" onclick="removeItem(this)">Удалить ✕</button></div>
+          </div>
+          <div class="cil-item">
+            <div class="cil-img" style="background:linear-gradient(135deg,#fff4e2,#f5d8a0)">🍊</div>
+            <div class="cil-info">
+              <p class="cil-brand">Wandoc</p>
+              <h3 class="cil-name">Vitamin C Cream</h3>
+              <p class="cil-variant">50 ml</p>
+              <div class="cil-qty-wrap"><button class="cil-qty-btn" onclick="chQty(this,-1)">−</button><span class="cil-qty-num">1</span><button class="cil-qty-btn" onclick="chQty(this,1)">+</button></div>
+            </div>
+            <div class="cil-right"><span class="cil-price">4 290 ₸</span><button class="cil-remove" onclick="removeItem(this)">Удалить ✕</button></div>
+          </div>
+        </div>
+
+        <div class="cart-summary">
+          <h3 class="cs-title">Итого</h3>
+          <div class="cs-promo">
+            <input type="text" placeholder="Промокод" id="promoInput" />
+            <button onclick="applyPromo()">OK</button>
+          </div>
+          <div class="cs-rows">
+            <div class="cs-row"><span>Товары (3)</span><span>13 160 ₸</span></div>
+            <div class="cs-row discount" id="discountRow" style="display:none"><span>Скидка HAIR25</span><span>−1 316 ₸</span></div>
+            <div class="cs-row"><span>Доставка</span><span style="color:var(--green-dark);font-weight:600">Бесплатно</span></div>
+            <div class="cs-row total"><span>К оплате</span><span id="totalSum">13 160 ₸</span></div>
+          </div>
+          <div class="cs-checkout">
+            <button class="btn btn-dark btn-full" onclick="checkout()" style="height:52px">Оформить заказ →</button>
+            <a href="catalog.html" class="btn btn-ghost btn-full" style="height:52px;justify-content:center">Продолжить покупки</a>
+          </div>
+          <p class="cs-note" style="margin-top:16px">Безопасная оплата. Ваши данные защищены.</p>
+          <div class="pay-row"><span class="pay-chip">Visa</span><span class="pay-chip">Mastercard</span><span class="pay-chip">Kaspi Pay</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleMobileNav() {
+      const nav = document.getElementById('mobileNav');
+      const ham = document.getElementById('hamburger');
+      const open = nav.classList.toggle('open');
+      ham.classList.toggle('open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+    document.querySelectorAll('.mobile-nav-link').forEach(l => {
+      l.addEventListener('click', () => {
+        document.getElementById('mobileNav').classList.remove('open');
+        document.getElementById('hamburger').classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+
+    function chQty(btn, d) {
+      const numEl = btn.parentElement.querySelector('.cil-qty-num');
+      let q = parseInt(numEl.textContent);
+      q = Math.max(1, q + d);
+      numEl.textContent = q;
+    }
+    function removeItem(btn) {
+      const item = btn.closest('.cil-item');
+      item.style.opacity = '0'; item.style.transform = 'translateX(20px)'; item.style.transition = '.3s ease';
+      setTimeout(() => item.remove(), 300);
+    }
+    function applyPromo() {
+      const code = document.getElementById('promoInput').value.trim().toUpperCase();
+      if (code === 'HAIR25') {
+        document.getElementById('discountRow').style.display = 'flex';
+        document.getElementById('totalSum').textContent = '11 844 ₸';
+        showToast('Промокод HAIR25 применён! Скидка 10% ✓');
+      } else {
+        showToast('Неверный промокод');
+      }
+    }
+    function checkout() { showToast('Переход к оформлению...'); }
+    function showToast(msg) {
+      let t = document.getElementById('toast');
+      if (!t) { t = document.createElement('div'); t.id='toast'; t.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f1f1f;color:#fff;padding:12px 24px;border-radius:100px;font-family:Poppins,sans-serif;font-size:13px;font-weight:500;z-index:1000;opacity:0;transition:.3s ease;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.25);'; document.body.appendChild(t); }
+      t.textContent=msg; t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+      clearTimeout(t._t); t._t=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(10px)';},2500);
+    }
+    window.addEventListener('scroll',()=>{
+      const h=document.getElementById('header');
+      h.style.boxShadow=window.scrollY>10?'0 4px 24px rgba(31,31,31,.08)':'none';
+    });
+  </script>
+</body>
+</html>
